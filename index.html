@@ -6,7 +6,15 @@
     <script src="js/vue.js" type="text/javascript"></script>
     <link rel="stylesheet" href="css/index.css">
     <style>
-        
+        .slide-enter-active, .slide-leave-active{
+            transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);;
+        }
+        .slide-enter{
+            transform: translateX(-100vw);
+        }
+        .slide-leave-to{
+            transform: translateX(100vw);
+        }
     </style>
 </head>
 <body>
@@ -20,24 +28,25 @@
 			</section>
 		</header>
 		<section>
-			<h2 onclick="save()">正在进行 <span id="todocount">{{ doingList.length }}</span></h2>
+			<h2>正在进行 <span id="todocount">{{ doingList.length }}</span></h2>
 			<ol class="demo-box">
-                <div>
-                    <li v-for="(item, index) in doingList" :key="index">
-                        <!-- 阻止click默认事件复选框重复选中 
-                            加prevent!!!!!!!!!!!!!!!
-                        -->
-                        <input type="checkbox" @click.prevent="joinDoneList(item.id)">
-                        {{ item.content }}
-                    </li>
-                </div>
-			</ol>
+                <li v-for="(item, index) in doingList" :key="item" class="todos">
+                    <!-- 
+                        阻止click默认事件复选框重复选中 
+                        加prevent!!!!!!!!!!!!!!!
+                    -->
+                    <input type="checkbox" @click.prevent="joinDoneList(item.id)">
+                    {{ item.content }}
+                    <a href="javascript:remove(3)" @click=delItem(item.id)>-</a>
+                </li>
+            </ol>
 			<h2>已经完成 <span id="donecount">{{ doneList.length }}</span></h2>
 			<ul>
                 <div>
-                    <li v-for="(item, index) in doneList" :key="index">
+                    <li v-for="(item, index) in doneList" :key="item" todos>
                         <input type="checkbox" @click.prevent="joinDoneList(item.id)" checked>
                         {{ item.content }}
+                        <a href="javascript:remove(3)" @click=delItem(item.id)>-</a>
                     </li>
                 </div>
 			</ul>
@@ -88,10 +97,20 @@
                 });
                 this.saveData();
             },
+            delItem: function(id){
+                this.todoList.splice(id,1);
+                this.todoList.forEach((item,i)=>{
+                    item.id = i;
+                });
+                this.saveData();
+            },
             delAll: function(){
                 this.todoList = [];
                 this.saveData();
             }
+        },
+        mounted: function(){
+            this.todoList = localStorage.todoList? JSON.parse(localStorage.todoList): [] ;
         },
     })
 </script>
