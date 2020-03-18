@@ -1,0 +1,98 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TodoList</title>
+    <script src="js/vue.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="css/index.css">
+    <style>
+        
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header>
+			<section>
+				<form>
+					<label for="title">ToDoList</label>
+					<input type="text" v-model="text" @keydown.enter.prevent="joinTodo" name="title" placeholder="请输入待办事项"/>
+                </form>
+			</section>
+		</header>
+		<section>
+			<h2 onclick="save()">正在进行 <span id="todocount">{{ doingList.length }}</span></h2>
+			<ol class="demo-box">
+                <div>
+                    <li v-for="(item, index) in doingList" :key="index">
+                        <!-- 阻止click默认事件复选框重复选中 
+                            加prevent!!!!!!!!!!!!!!!
+                        -->
+                        <input type="checkbox" @click.prevent="joinDoneList(item.id)">
+                        {{ item.content }}
+                    </li>
+                </div>
+			</ol>
+			<h2>已经完成 <span id="donecount">{{ doneList.length }}</span></h2>
+			<ul>
+                <div>
+                    <li v-for="(item, index) in doneList" :key="index">
+                        <input type="checkbox" @click.prevent="joinDoneList(item.id)" checked>
+                        {{ item.content }}
+                    </li>
+                </div>
+			</ul>
+        </section>
+        <hr @click="delAll"/>
+    </div>
+</body>
+<script type="text/javascript">
+    var app = new Vue({
+        el: "#app",
+        data: {
+            text: '',
+            todoList: [],
+        },
+        computed: {
+            // 通过过滤todolist得到未做好和已做好的事件
+            doingList: function(){
+                let arr = this.todoList.filter((item,index)=>{
+                    return !item.isDone;
+                });
+                return arr;
+            },
+            doneList: function(){
+                let arr = this.todoList.filter((item,index)=>{
+                    return item.isDone;
+                });
+                return arr;
+            }
+        },
+        methods: {
+            joinTodo: function(e){
+                this.todoList.push({
+                    content: this.text,
+                    isDone: false,
+                    id: this.todoList.length
+                });
+                this.saveData();
+                this.text = ''
+            },
+            // 将数据保存到本地存储
+            saveData: function(){
+                localStorage.todoList = JSON.stringify(this.todoList);
+            },
+            joinDoneList: function(index){
+                this.todoList[index].isDone = !this.todoList[index].isDone ;
+                this.todoList.forEach((item,i)=> {
+                    item.id = i;
+                });
+                this.saveData();
+            },
+            delAll: function(){
+                this.todoList = [];
+                this.saveData();
+            }
+        },
+    })
+</script>
+</html>
